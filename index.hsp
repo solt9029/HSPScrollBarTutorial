@@ -1,42 +1,48 @@
 #include "./vendor/ScrollBar.hsp"
-    picload "background.jpg"
-    
-    PicSizeX = ginfo_sx 
-    PicSizeY = ginfo_sy
-    BarSize = ScrollBar_GetSystemSize()
 
-    screen 1, PicSizeX + BarSize, PicSizeY + BarSize, , , , 320, 240
-    gcopy 0, 0, 0, PicSizeX, PicSizeY
-    
-    gosub *Window_PutScrollBar
-    oncmd gosub *Window_PutScrollBar, 5
-    ScrollBar_SetSubLabel *GetScroll
+picload "background.jpg"
 
-    screen 0, 320, 20 * 6
-    stop
+picture_size_x = ginfo_sx
+picture_size_y = ginfo_sy
+bar_size = ScrollBar_GetSystemSize()
 
-*Window_PutScrollBar
+initial_window_size_x = 320
+initial_window_size_y = 240
+
+screen 1, picture_size_x + bar_size, picture_size_y + bar_size, , , , initial_window_size_x, initial_window_size_y
+gcopy 0, 0, 0, picture_size_x, picture_size_y
+
+gosub *putScrollBar
+oncmd gosub *putScrollBar, 5 // ウィンドウサイズが変化した時に呼び出されるように設定
+ScrollBar_SetSubLabel *getScroll
+
+stop
+
+*putScrollBar
+	// 以前の状態のスクロールバーを消す
     gsel 1
     clrobj
 
-    pos 0, ginfo_winy - BarSize
-    ScrollBar_Create ginfo_winx - BarSize, BarSize, 0, 0, PicSizeX - 1, ginfo_winx - BarSize, ginfo_vx, ginfo_winx / 4, ginfo_winx - BarSize
+  	pos 0, ginfo_winy - bar_size
+    ScrollBar_Create ginfo_winx - bar_size, bar_size, 0, 0, picture_size_x - 1, ginfo_winx - bar_size, ginfo_vx, ginfo_winx / 4, ginfo_winx - bar_size
     XBarID = stat
 
-    pos ginfo_winx - BarSize, 0
-    ScrollBar_Create BarSize, ginfo_winy - BarSize, 1
+    pos ginfo_winx - bar_size, 0
+    ScrollBar_Create bar_size, ginfo_winy - bar_size, 1
     YBarID = stat
-    
-    ScrollBar_SetRange YBarID, 0, PicSizeY - 1, ginfo_winy - BarSize
-    ScrollBar_SetStep  YBarID,  ginfo_winy / 4, ginfo_winy - BarSize
+ 
+	// このパラメータはよさげだから極力いじらない
+    ScrollBar_SetRange YBarID, 0, picture_size_y - 1, ginfo_winy - bar_size
+    ScrollBar_SetStep  YBarID,  ginfo_winy / 4, ginfo_winy - bar_size
     ScrollBar_SetPos   YBarID,  ginfo_vy
 
-    pos ginfo_winx - BarSize, ginfo_winy - BarSize
-    winobj "STATIC", "", 0, $50000000, BarSize, BarSize
+	// 右下に出てくる空白部分、だと思う
+    pos ginfo_winx - bar_size, ginfo_winy - bar_size
+    winobj "STATIC", "", 0, $50000000, bar_size, bar_size
     return
 
-*GetScroll
-    gsel 1
+*getScroll
+   	gsel 1
     ib = ScrollBar_GetPos(XBarID), ScrollBar_GetPos(YBarID)
-    groll ib, ib(1)
+    groll ib(0), ib(1)
     return
